@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+<title>Moriusa Puzzle</title>
+<style>
+  body {
+    background: linear-gradient(135deg, #2b1055, #7597de);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-family: "Luckiest Guy", cursive;
+    color: white;
+  }
+  h1 {
+    font-size: 38px;
+    margin: 20px 0;
+    text-shadow: 2px 2px 0 #000,  
+                 -2px -2px 0 #000,
+                 2px -2px 0 #000,
+                 -2px 2px 0 #000,
+                 3px 3px 0 #000,
+                 -3px -3px 0 #000;
+  }
+  .puzzle-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .preview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .preview {
+    width: 150px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .controls span {
+    font-size: 16px;
+  }
+  .controls button {
+    background-color: #fff;
+    color: #2b1055;
+    border: none;
+    padding: 6px 12px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .controls button:hover {
+    background-color: #ddd;
+  }
+  .puzzle-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    width: 80vw;
+    max-width: 300px;
+    aspect-ratio: 1 / 1;
+    gap: 2px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  }
+  .tile {
+    background-size: 400% 400%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .empty {
+    background: transparent;
+    cursor: default;
+  }
+  .swap-icon {
+    margin: 15px;
+    font-size: 28px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.3s ease;
+  }
+  .swap-icon:hover {
+    transform: rotate(180deg);
+  }
+  .hidden {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<center><h1>WORLD OF MORIUSA</h1></center>
+
+<div class="preview-container">
+  <img src="moriusa2.png" alt="Puzzle Preview" class="preview" id="previewImage" />
+</div>
+
+<div class="puzzle-wrapper">
+  <div class="puzzle-section" id="puzzleSection1">
+    <div class="controls">
+      <span id="timer1">Time: 0s</span>
+      <button onclick="puzzle1.restart()">Restart</button>
+    </div>
+    <div class="puzzle-container" id="puzzle1"></div>
+  </div>
+  <div class="puzzle-section hidden" id="puzzleSection2">
+    <div class="controls">
+      <span id="timer2">Time: 0s</span>
+      <button onclick="puzzle2.restart()">Restart</button>
+    </div>
+    <div class="puzzle-container" id="puzzle2"></div>
+  </div>
+</div>
+
+<div class="swap-icon" onclick="swapPuzzles()">⟳</div>
+
+<script>
+  class SlidingPuzzle {
+    constructor(containerId, timerId, imageSrc) {
+      this.container = document.getElementById(containerId);
+      this.timerDisplay = document.getElementById(timerId);
+      this.imageSrc = imageSrc;
+      this.size = 4;
+      this.totalTiles = this.size * this.size;
+      this.tiles = [];
+      this.timer = null;
+      this.seconds = 0;
+      this.init();
+    }
+
+    init() {
+      this.createTiles();
+      this.shuffleTiles();
+      this.ensureEmptyTileAtStart();
+      this.render();
+      this.startTimer();
+      this.container.addEventListener('click', e => this.handleTileClick(e));
+    }
+
+    createTiles() {
+      this.tiles = [];
+      for (let i = 0; i < this.totalTiles - 1; i++) {
+        const tile = document.createElement('div');
+        tile.classList.add('tile');
+        tile.dataset.index = i;
+
+        const row = Math.floor(i / this.size);
+        const col = i % this.size;
+        const flippedCol = (this.size - 1) - col;
+
+        tile.style.backgroundImage = `url('${this.imageSrc}')`;
+        tile.style.backgroundPosition = `${(flippedCol * 100) / (this.size - 1)}% ${(row * 100) / (this.size - 1)}%`;
+        this.tiles.push(tile);
+      }
+
+      const emptyTile = document.createElement('div');
+      emptyTile.classList.add('tile', 'empty');
+      emptyTile.dataset.index = this.totalTiles - 1;
+      this.tiles.push(emptyTile);
+    }
+
+    shuffleTiles() {
+      const emptyTile = this.tiles.pop();
+      for (let i = this.tiles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.tiles[i], this.tiles[j]] = [this.tiles[j], this.tiles[i]];
+      }
+      this.tiles.push(emptyTile);
+    }
+
+    ensureEmptyTileAtStart() {
+      const emptyIndex = this.getEmptyIndex();
+      if (emptyIndex !== 0) {
+        [this.tiles[0], this.tiles[emptyIndex]] = [this.tiles[emptyIndex], this.tiles[0]];
+      }
+    }
+
+    render() {
+      this.container.innerHTML = '';
+      this.tiles.forEach((tile, i) => {
+        tile.style.order = i;
+        this.container.appendChild(tile);
+      });
+    }
+
+    getEmptyIndex() {
+      return this.tiles.findIndex(tile => tile.classList.contains('empty'));
+    }
+
+    canMove(index) {
+      const emptyIndex = this.getEmptyIndex();
+      const x1 = index % this.size, y1 = Math.floor(index / this.size);
+      const x2 = emptyIndex % this.size, y2 = Math.floor(emptyIndex / this.size);
+      return (Math.abs(x1 - x2) + Math.abs(y1 - y2)) === 1;
+    }
+
+    moveTile(index) {
+      const emptyIndex = this.getEmptyIndex();
+      [this.tiles[index], this.tiles[emptyIndex]] = [this.tiles[emptyIndex], this.tiles[index]];
+      this.render();
+    }
+
+    handleTileClick(e) {
+      const tile = e.target;
+      const index = this.tiles.indexOf(tile);
+      if (index !== -1 && this.canMove(index)) {
+        this.moveTile(index);
+      }
+    }
+
+    startTimer() {
+      clearInterval(this.timer);
+      this.seconds = 0;
+      this.timerDisplay.textContent = "Time: 0s";
+      this.timer = setInterval(() => {
+        this.seconds++;
+        this.timerDisplay.textContent = `Time: ${this.seconds}s`;
+      }, 1000);
+    }
+
+    restart() {
+      this.createTiles();
+      this.shuffleTiles();
+      this.ensureEmptyTileAtStart();
+      this.render();
+      this.startTimer();
+    }
+  }
+
+  const puzzle1 = new SlidingPuzzle('puzzle1', 'timer1', 'moriusa2.png');
+  const puzzle2 = new SlidingPuzzle('puzzle2', 'timer2', 'moriusa3.png');
+
+  let showingPuzzle1 = true;
+  function swapPuzzles() {
+    showingPuzzle1 = !showingPuzzle1;
+    document.getElementById('puzzleSection1').classList.toggle('hidden', !showingPuzzle1);
+    document.getElementById('puzzleSection2').classList.toggle('hidden', showingPuzzle1);
+    const previewImage = document.getElementById('previewImage');
+    previewImage.src = showingPuzzle1 ? 'moriusa2.png' : 'moriusa3.png';
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moriusa Tales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #a282b2;
+      font-family: 'Cinzel', serif;
+      color: black;
+      overflow-x: hidden;
+    }
+
+    .scroll-section {
+      padding: 100px 20px;
+      background: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+      background-color: #a282b2;
+      border-top: 10px solid #a282b2;
+      border-bottom: 10px solid #a282b2;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.08);
+      position: relative;
+      text-align: center;
+      transition: all 0.6s ease;
+    }
+
+    .scroll-section:nth-child(even) {
+      background-color: #a282b2;
+    }
+
+    .scroll-section h2 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #d8d5c7;
+      text-shadow: 1px 1px 0 #e0c9a6;
+    }
+
+    .scroll-link {
+      display: inline-block;
+      font-size: 1.2rem;
+      padding: 10px 25px;
+      background-color: #a282b2;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .scroll-link:hover {
+      background-color: #a282b2;
+      transform: scale(1.05);
+    }
+    
+  </style>
+</head>
+<body>
+
+<nav style="position: sticky; top: 0; background: #a282b2; font-family: 'Cinzel', serif; padding: 12px 25px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); z-index: 1000;">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="font-size: 1.8rem; color: white; font-weight: bold;">Tales of Moriusa</div>
+    
+    <button id="menuToggle" style="display: none; font-size: 1.5rem; background: none; border: none; color: white; cursor: pointer;">&#9776;</button>
+    
+    <div id="navLinks" style="display: flex; gap: 25px;">
+      <a href="index.html" style="color: white; text-decoration: none; font-size: 1rem;">The Spark of Moriusa</a>
+      <a href="mito1.html" style="color: white; text-decoration: none; font-size: 1rem;">The Moriusa Voyage</a>
+    </div>
+  </div>
+
+  <div id="dropdownMenu" style="display: none; position: fixed; top: 60px; left: 0; right: 0; background: #fdfaf4; box-shadow: 0 4px 12px rgba(0,0,0,0.2); padding: 20px; z-index: 999; flex-direction: column; text-align: center;">
+    <a href="moriusa.html" style="margin: 10px 0; color: #3b2f2f; text-decoration: none; font-size: 1.1rem;">The Spark of Moriusa</a>
+   
+    <a href="moriusa2.html" style="margin: 10px 0; color: #3b2f2f; text-decoration: none; font-size: 1.1rem;">The Moriusa Voyage</a>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const toggle = document.getElementById("menuToggle");
+      const navLinks = document.getElementById("navLinks");
+      const dropdownMenu = document.getElementById("dropdownMenu");
+      const links = dropdownMenu.querySelectorAll("a");
+      const currentPath = window.location.pathname.split("/").pop();
+
+      // Highlight active link
+      [...links, ...navLinks.querySelectorAll("a")].forEach(link => {
+        if (link.getAttribute("href") === currentPath) {
+          link.style.fontWeight = "bold";
+          link.style.textDecoration = "underline";
+        }
+      });
+
+      // Responsive behavior
+      function handleResize() {
+        if (window.innerWidth < 650) {
+          toggle.style.display = "block";
+          navLinks.style.display = "none";
+        } else {
+          toggle.style.display = "none";
+          navLinks.style.display = "flex";
+          dropdownMenu.style.display = "none";
+        }
+      }
+
+      toggle.addEventListener("click", () => {
+        dropdownMenu.style.display = dropdownMenu.style.display === "flex" ? "none" : "flex";
+      });
+
+      window.addEventListener("resize", handleResize);
+      handleResize();
+    });
+  </script>
+</nav>
+
+  <div class="scroll-section">
+    <h2>Story 1: The Spark of Moriusa</h2>
+    <p style="max-width: 600px; margin: 0 auto 20px; font-size: 1rem;">
+  Moriusa’s journey begins </br> Born from a whisper.
+</br>
+The adventure has begun. ♐
+</p>
+    <a class="scroll-link" href="moriusa.html">Read More</a>
+  </div>
+
+  <div class="scroll-section">
+    <h2>Story 2: The Moriusa Voyage</h2>
+    <p style="max-width: 600px; margin: 0 auto 20px; font-size: 1rem;">
+  Moriusa’s at the helm.
+  </br> Sailing the seas.
+</br>
+MoriLand lies ahead, full speed. 🏴‍☠️
+</p>
+    <a class="scroll-link" href="moriusa2.html">Read More</a>
+  </div>
+</body>
+</html>
